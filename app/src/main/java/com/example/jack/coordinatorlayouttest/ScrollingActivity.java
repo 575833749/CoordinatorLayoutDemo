@@ -7,8 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ScrollingActivity extends AppCompatActivity {
 
@@ -58,20 +61,58 @@ public class ScrollingActivity extends AppCompatActivity {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 int totalScrollRange = appBarLayout.getTotalScrollRange();
-                int alpha = Math.abs((int) (255 - 255.0f * Math.abs(verticalOffset) / totalScrollRange*2));
-                if (Math.abs(verticalOffset)<=totalScrollRange/2){
-                    setToolbar1Alpha(alpha);
-                    mToolbar1.setVisibility(View.VISIBLE);
-                    mToolbar2.setVisibility(View.GONE);
-                }else {
-                    setToolbar2Alpha(alpha);
-                    mToolbar1.setVisibility(View.GONE);
-                    mToolbar2.setVisibility(View.VISIBLE);
-                }
-
-//                mView.setBackgroundColor(Color.argb(alpha, 25, 132, 209));
+                showTitle(verticalOffset, totalScrollRange);
             }
         });
+
+        mSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "search", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    Animation animation;
+    private void showTitle(int verticalOffset, int totalScrollRange) {
+        int alpha = Math.abs((int) (255 - 255.0f * Math.abs(verticalOffset) / totalScrollRange*2));
+        if (Math.abs(verticalOffset)<=totalScrollRange/2){
+            if (animation!=null){
+                animation.cancel();
+            }
+            setToolbar1Alpha(alpha);
+            mToolbar1.setVisibility(View.VISIBLE);
+            mToolbar2.setVisibility(View.GONE);
+        }else {
+            setToolbar2Alpha(alpha);
+            if (mToolbar2.getVisibility()==View.GONE){
+                mToolbar1.setVisibility(View.GONE);
+                if (animation==null){
+                    animation = AnimationUtils.loadAnimation(this, R.anim.title_in);
+                }
+                mToolbar2.startAnimation(animation);
+                mToolbar2.setVisibility(View.VISIBLE);
+            }else {
+
+            }
+           /* mToolbar1.setVisibility(View.GONE);
+            mToolbar2.setVisibility(View.VISIBLE);*/
+        }
+    }
+    private void showTitle2(int verticalOffset, int totalScrollRange) {
+        int alpha = Math.abs((int) (255 - 255.0f * Math.abs(verticalOffset) / totalScrollRange));
+        setToolbar1Alpha(alpha);
+        mToolbar1.setVisibility(View.VISIBLE);
+        mToolbar2.setVisibility(View.GONE);
+
+        if (alpha==0){
+            if (mToolbar2.getVisibility()==View.GONE){
+                mToolbar1.setVisibility(View.GONE);
+                Animation animation = AnimationUtils.loadAnimation(this, R.anim.title_in);
+                mToolbar2.startAnimation(animation);
+                mToolbar2.setVisibility(View.VISIBLE);
+            }
+
+        }
     }
 
     //设置展开时各控件的透明度
